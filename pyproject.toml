@@ -10,6 +10,7 @@ packages = [{ include = "model", from = "src" }]
 python = "^3.11"
 
 mlflow = "^2.19.0"
+psutil = "^6.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"

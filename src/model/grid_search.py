@@ -19,6 +19,7 @@ from mlflow.models import infer_signature
 mlflow.set_tracking_uri("http://localhost:5000")
 
 MODEL_NAME = "elastic-net-regression"
+EXPERIMENT_NAME = "elastic-net-trials"
 
 
 class ElasticNetCustom(ElasticNet):
@@ -41,15 +42,23 @@ class Logger:
     and logs sklearn random forest estimator in rf_logger method.
     """
 
-    def __init__(self, X_test: np.ndarray, y_test: np.ndarray):
+    def __init__(
+        self, experiment_id: str | None, X_test: np.ndarray, y_test: np.ndarray
+    ):
         self.X_test = X_test
         self.y_test = y_test
+        self.experiment_id = experiment_id
 
     def log(self, model: ElasticNet):
         # log the model in the nested mlflow runs
         uuid = str(uuid4())
         run_name = f"alpha={model.alpha},l1_ratio={model.l1_ratio}-{uuid[0:8]}"
-        with mlflow.start_run(run_name=run_name, nested=True):
+        with mlflow.start_run(
+            run_name=run_name,
+            experiment_id=self.experiment_id,
+            nested=True,
+            log_system_metrics=True,
+        ):
             mlflow.log_param("alpha", model.alpha)
             mlflow.log_param("l1_ratio", model.l1_ratio)
 
@@ -98,9 +107,19 @@ def main():
     scorer = make_scorer(mean_squared_error, greater_is_better=False)
     grid = GridSearchCV(model, param_grid, cv=3, scoring=scorer)
 
-    logger = Logger(X_test, y_test)
+    experiment_id = mlflow.get_experiment_by_name(EXPERIMENT_NAME)
+    if not experiment_id:
+        experiment_id = mlflow.create_experiment(
+            EXPERIMENT_NAME,
+            tags={"version": "v1", "priority": "P1"},
+        )
+    logger = Logger(experiment_id, X_test, y_test)
 
-    with mlflow.start_run(run_name="grid_search"):
+    with mlflow.start_run(
+        experiment_id=experiment_id,
+        run_name="grid_search",
+        log_system_metrics=True,
+    ):
         dataset = mlflow.data.from_pandas(Xy, name="iris", targets=target_name)
         mlflow.log_input(dataset, context="train")
         grid.fit(X_train, y_train, callback=logger.log)
