@@ -2,12 +2,9 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 import mlflow
-from mlflow.models import infer_signature
+import mlflow.sklearn
 
 mlflow.set_tracking_uri("http://localhost:5000")
-
-import mlflow.sklearn
-from mlflow.models import infer_signature
 
 
 def main():
