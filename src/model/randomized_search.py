@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_iris
@@ -45,7 +47,9 @@ class Logger:
 
     def log(self, model: ElasticNet):
         # log the model in the nested mlflow runs
-        with mlflow.start_run(nested=True):
+        uuid = str(uuid4())
+        run_name = f"alpha={model.alpha},l1_ratio={model.l1_ratio}-{uuid[0:8]}"
+        with mlflow.start_run(run_name=run_name, nested=True):
             mlflow.log_param("alpha", model.alpha)
             mlflow.log_param("l1_ratio", model.l1_ratio)
 
