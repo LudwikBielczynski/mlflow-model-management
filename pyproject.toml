@@ -4,7 +4,7 @@ version = "0.0.1"
 description = ""
 authors = ["Ludwik Bielczynski <ludwik.bielczynski@gmail.com>"]
 readme = "README.md"
-packages = [{include = "model", from = "src"}]
+packages = [{ include = "model", from = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
