@@ -1,0 +1,10 @@
+{
+    "editor.formatOnSave": true,
+    "files.autoSave": "afterDelay",
+    "breadcrumbs.enabled": false,
+    "[python]": { // Here
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    }
+}
